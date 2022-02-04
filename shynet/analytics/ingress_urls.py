@@ -20,4 +20,9 @@ urlpatterns = [
         ingress.ScriptView.as_view(),
         name="endpoint_script_id",
     ),
+    path(
+        "<service_uuid>/random/<random_number>/pixel.gif",
+        ingress.PixelView.as_view(),
+        name="endpoint_pixel_random",
+    ),
 ]
