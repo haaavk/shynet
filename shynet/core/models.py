@@ -1,7 +1,8 @@
 import ipaddress
-import json
 import re
 import uuid
+
+from secrets import token_urlsafe
 
 from django.apps import apps
 from django.conf import settings
@@ -43,9 +44,14 @@ def _parse_network_list(networks: str):
     return [ipaddress.ip_network(network.strip()) for network in networks.split(",")]
 
 
+def _default_api_token():
+    return token_urlsafe(32)
+
+
 class User(AbstractUser):
     username = models.TextField(default=_default_uuid, unique=True)
     email = models.EmailField(unique=True)
+    api_token = models.TextField(default=_default_api_token, unique=True)
 
     def __str__(self):
         return self.email
@@ -107,21 +113,21 @@ class Service(models.Model):
             start_time=timezone.now() - timezone.timedelta(days=1)
         )
 
-    def get_core_stats(self, start_time=None, end_time=None):
+    def get_core_stats(self, start_time=None, end_time=None, basic=False):
         if start_time is None:
             start_time = timezone.now() - timezone.timedelta(days=30)
         if end_time is None:
             end_time = timezone.now()
 
-        main_data = self.get_relative_stats(start_time, end_time)
+        main_data = self.get_relative_stats(start_time, end_time, basic)
         comparison_data = self.get_relative_stats(
-            start_time - (end_time - start_time), start_time
+            start_time - (end_time - start_time), start_time, basic
         )
         main_data["compare"] = comparison_data
 
         return main_data
 
-    def get_relative_stats(self, start_time, end_time):
+    def get_relative_stats(self, start_time, end_time, basic=False):
         Session = apps.get_model("analytics", "Session")
         Hit = apps.get_model("analytics", "Hit")
 
@@ -145,6 +151,28 @@ class Service(models.Model):
 
         bounces = sessions.filter(is_bounce=True)
         bounce_count = bounces.count()
+
+        avg_load_time = hits.aggregate(load_time__avg=models.Avg("load_time"))[
+            "load_time__avg"
+        ]
+
+        avg_hits_per_session = hit_count / session_count if session_count > 0 else None
+
+        avg_session_duration = self._get_avg_session_duration(sessions, session_count)
+        if basic:
+            return {
+                "currently_online": currently_online,
+                "session_count": session_count,
+                "hit_count": hit_count,
+                "has_hits": has_hits,
+                "bounce_rate_pct": bounce_count * 100 / session_count
+                if session_count > 0
+                else None,
+                "avg_session_duration": avg_session_duration,
+                "avg_load_time": avg_load_time,
+                "avg_hits_per_session": avg_hits_per_session,
+                "online": True,
+            }
 
         locations = (
             hits.values("location")
@@ -192,17 +220,10 @@ class Service(models.Model):
             .order_by("-count")
         )
 
-        avg_load_time = hits.aggregate(load_time__avg=models.Avg("load_time"))[
-            "load_time__avg"
-        ]
-
-        avg_hits_per_session = hit_count / session_count if session_count > 0 else None
-
-        avg_session_duration = self._get_avg_session_duration(sessions, session_count)
-
         chart_data, chart_tooltip_format, chart_granularity = self._get_chart_data(
             sessions, hits, start_time, end_time, tz_now
         )
+
         return {
             "currently_online": currently_online,
             "session_count": session_count,
