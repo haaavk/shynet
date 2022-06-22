@@ -22,6 +22,6 @@ class Command(BaseCommand):
         email = options.get("email")
         password = get_random_string()
         User.objects.create_superuser(str(uuid.uuid4()), email=email, password=password)
-        self.stdout.write(self.style.SUCCESS("Successfully created a Shynet superuser"))
+        self.stdout.write(self.style.SUCCESS("Successfully created a Shyweb superuser"))
         self.stdout.write(f"Email address: {email}")
         self.stdout.write(f"Password: {password}")
