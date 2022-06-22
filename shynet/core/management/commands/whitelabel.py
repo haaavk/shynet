@@ -10,7 +10,7 @@ from core.models import User
 
 
 class Command(BaseCommand):
-    help = "Configures a Shynet whitelabel"
+    help = "Configures a Shyweb whitelabel"
 
     def add_arguments(self, parser):
         parser.add_argument(

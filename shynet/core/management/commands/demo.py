@@ -50,7 +50,7 @@ USER_AGENTS = [
 
 
 class Command(BaseCommand):
-    help = "Configures a Shynet demo service"
+    help = "Configures a Shyweb demo service"
 
     def add_arguments(self, parser):
         parser.add_argument(
