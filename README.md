@@ -4,7 +4,7 @@
   <br>
 
   <p align="center">
-    Shyweb is en experimental fork of [Shynet](https://github.com/milesmcc/shynet).
+    Shyweb is en experimental fork of <a href="https://github.com/milesmcc/shynet">Shynet</a>.
   </p>
 
 <br>
