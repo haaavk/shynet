@@ -5,7 +5,7 @@
     <div class="p-4 md:flex justify-between overflow-none">
         <div class="flex items-center mb-4 md:mb-0 md:flex-1 md:min-w-0 truncate pr-0 md:pr-2">
             <h3 class="heading text-xl md:text-2xl mr-2 mb-1 text-urge-600 flex items-center truncate" title="{{object.name}}">
-                {{object.link|iconify}}
+                {{object|favicon}}
                 <span class="truncate">{{object.name}}</span>
             </h3>
             {% include 'dashboard/includes/stats_status_chip.html' %}
