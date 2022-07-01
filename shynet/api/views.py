@@ -39,6 +39,7 @@ class DashboardApiView(ApiTokenRequiredMixin, DateRangeMixin, View):
                 'name': s.name,
                 'uuid': s.uuid,
                 'link': s.link,
+                'favicon': s.favicon,
                 'stats': s.get_core_stats(start, end),
             }
             for s in services
