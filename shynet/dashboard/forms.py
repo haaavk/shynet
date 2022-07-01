@@ -12,6 +12,7 @@ class ServiceForm(forms.ModelForm):
         fields = [
             "name",
             "link",
+            "favicon",
             "respect_dnt",
             "collect_ips",
             "ignored_ips",
@@ -42,6 +43,7 @@ class ServiceForm(forms.ModelForm):
         help_texts = {
             "name": _("What should the service be called?"),
             "link": _("What's the service's primary URL?"),
+            "favicon": _("What's the service's favicon URL?"),
             "origins": _(
                 "At what origins does the service operate? Use commas to separate multiple values. This sets CORS headers, so use '*' if you're not sure (or don't care)."
             ),
