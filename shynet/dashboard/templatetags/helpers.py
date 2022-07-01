@@ -185,6 +185,15 @@ def iconify(text):
 
 
 @register.filter
+def favicon(service):
+    url = service.favicon
+    if not url:
+        return iconify(service.link)
+
+    return SafeString(f'<span class="icon mr-1 flex-none"><img src="{url}"></span>')
+
+
+@register.filter
 def urldisplay(url):
     if url.startswith("http"):
         display_url = url.replace("http://", "").replace("https://", "")
