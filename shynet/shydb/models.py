@@ -4,7 +4,7 @@ from core.models import User, _default_uuid
 
 class ShyDB(models.Model):
     key = models.UUIDField(default=_default_uuid, primary_key=True)
-    name = models.TextField(null=True, blank=True)
+    name = models.CharField(max_length=128, null=True, blank=True)
     value = models.JSONField(null=True, blank=True)
     schema = models.JSONField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="db_entries")
