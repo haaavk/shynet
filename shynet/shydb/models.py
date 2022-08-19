@@ -9,8 +9,8 @@ class ShyDB(models.Model):
     schema = models.JSONField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="db_entries")
     api_editable = models.BooleanField(default=False)
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         pass
