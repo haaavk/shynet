@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount",
     "debug_toolbar",
     "corsheaders",
+    "django_json_widget",
 ]
 
 MIDDLEWARE = [

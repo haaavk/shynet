@@ -111,37 +111,37 @@ pytz = ">0.dev.0"
 vine = ">=5.0.0,<6.0"
 
 [package.extras]
-arangodb = ["pyArango (>=1.3.2)"]
-auth = ["cryptography"]
-azureblockblob = ["azure-storage-blob (==12.9.0)"]
-brotli = ["brotli (>=1.0.0)", "brotlipy (>=0.7.0)"]
-cassandra = ["cassandra-driver (<3.21.0)"]
-consul = ["python-consul2"]
-cosmosdbsql = ["pydocumentdb (==2.3.2)"]
-couchbase = ["couchbase (>=3.0.0)"]
-couchdb = ["pycouchdb"]
-django = ["Django (>=1.11)"]
-dynamodb = ["boto3 (>=1.9.178)"]
-elasticsearch = ["elasticsearch"]
-eventlet = ["eventlet (>=0.32.0)"]
-gevent = ["gevent (>=1.5.0)"]
-librabbitmq = ["librabbitmq (>=1.5.0)"]
-memcache = ["pylibmc"]
-mongodb = ["pymongo[srv] (>=3.3.0,<3.12.1)"]
-msgpack = ["msgpack"]
-pymemcache = ["python-memcached"]
-pyro = ["pyro4"]
-pytest = ["pytest-celery"]
-redis = ["redis (>=3.4.1,<4.0.0)"]
-s3 = ["boto3 (>=1.9.125)"]
-slmq = ["softlayer-messaging (>=1.0.3)"]
-solar = ["ephem"]
-sqlalchemy = ["sqlalchemy"]
-sqs = ["kombu"]
-tblib = ["tblib (>=1.3.0)", "tblib (>=1.5.0)"]
-yaml = ["PyYAML (>=3.10)"]
-zookeeper = ["kazoo (>=1.3.1)"]
 zstd = ["zstandard"]
+zookeeper = ["kazoo (>=1.3.1)"]
+yaml = ["PyYAML (>=3.10)"]
+tblib = ["tblib (>=1.5.0)", "tblib (>=1.3.0)"]
+sqs = ["kombu"]
+sqlalchemy = ["sqlalchemy"]
+solar = ["ephem"]
+slmq = ["softlayer-messaging (>=1.0.3)"]
+s3 = ["boto3 (>=1.9.125)"]
+redis = ["redis (>=3.4.1,<4.0.0)"]
+pytest = ["pytest-celery"]
+pyro = ["pyro4"]
+pymemcache = ["python-memcached"]
+msgpack = ["msgpack"]
+mongodb = ["pymongo[srv] (>=3.3.0,<3.12.1)"]
+memcache = ["pylibmc"]
+librabbitmq = ["librabbitmq (>=1.5.0)"]
+gevent = ["gevent (>=1.5.0)"]
+eventlet = ["eventlet (>=0.32.0)"]
+elasticsearch = ["elasticsearch"]
+dynamodb = ["boto3 (>=1.9.178)"]
+django = ["Django (>=1.11)"]
+couchdb = ["pycouchdb"]
+couchbase = ["couchbase (>=3.0.0)"]
+cosmosdbsql = ["pydocumentdb (==2.3.2)"]
+consul = ["python-consul2"]
+cassandra = ["cassandra-driver (<3.21.0)"]
+brotli = ["brotlipy (>=0.7.0)", "brotli (>=1.0.0)"]
+azureblockblob = ["azure-storage-blob (==12.9.0)"]
+auth = ["cryptography"]
+arangodb = ["pyArango (>=1.3.2)"]
 
 [[package]]
 name = "certifi"
@@ -282,8 +282,8 @@ pytz = "*"
 sqlparse = ">=0.2.2"
 
 [package.extras]
-argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
+argon2 = ["argon2-cffi (>=19.1.0)"]
 
 [[package]]
 name = "django-allauth"
@@ -353,6 +353,17 @@ description = "A Django application to retrieve user's IP address"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
+
+[[package]]
+name = "django-json-widget"
+version = "1.1.1"
+description = "Django json widget is an alternative widget that makes it easy to edit the jsonfield field of django."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+future = "*"
 
 [[package]]
 name = "django-npm"
@@ -439,6 +450,14 @@ description = "A list-like structure which implements collections.abc.MutableSeq
 category = "main"
 optional = false
 python-versions = ">=3.6"
+
+[[package]]
+name = "future"
+version = "0.18.2"
+description = "Clean single-source support for Python 3 and 2"
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "geoip2"
@@ -642,7 +661,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
 name = "pyjwt"
-version = "2.3.0"
+version = "2.4.0"
 description = "JSON Web Token implementation in Python"
 category = "main"
 optional = false
@@ -652,10 +671,10 @@ python-versions = ">=3.6"
 cryptography = {version = ">=3.3.1", optional = true, markers = "extra == \"crypto\""}
 
 [package.extras]
+tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
+docs = ["zope.interface", "sphinx-rtd-theme", "sphinx"]
+dev = ["pre-commit", "mypy", "coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)", "cryptography (>=3.3.1)", "zope.interface", "sphinx-rtd-theme", "sphinx"]
 crypto = ["cryptography (>=3.3.1)"]
-dev = ["sphinx", "sphinx-rtd-theme", "zope.interface", "cryptography (>=3.3.1)", "pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)", "mypy", "pre-commit"]
-docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
-tests = ["pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)"]
 
 [[package]]
 name = "pyparsing"
@@ -960,7 +979,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "9fa33a531809239cfa88d8d896484af7d8be765b2a0f4878ab5434d5af6b30d2"
+content-hash = "1a537593d889f8bf5c3cb3ca3c626b5ad3449ed4abb76048cee5f6657331d1bf"
 
 [metadata.files]
 aiohttp = [
@@ -1251,6 +1270,9 @@ django-ipware = [
     {file = "django-ipware-3.0.7.tar.gz", hash = "sha256:753f8214a16ccaac54ea977349a96e37b582a28a54065e00c1c46d530862c85e"},
     {file = "django_ipware-3.0.7-py2.py3-none-any.whl", hash = "sha256:a18820ea2b98ff3f87b7530eb6346f5feb65d18e89397606aacc098fa7b93db2"},
 ]
+django-json-widget = [
+    {file = "django-json-widget-1.1.1.tar.gz", hash = "sha256:ec948a4c379687f9c854748ba540fdbeb1b1730846ca953f186818521de7e696"},
+]
 django-npm = [
     {file = "django-npm-1.0.0.tar.gz", hash = "sha256:2e6bba65e728fa18b9db3c8dc0d4490b70cb7f43bacf60eb3654d7dcb6424272"},
 ]
@@ -1346,6 +1368,9 @@ frozenlist = [
     {file = "frozenlist-1.2.0-cp39-cp39-win32.whl", hash = "sha256:83334e84a290a158c0c4cc4d22e8c7cfe0bba5b76d37f1c2509dabd22acafe15"},
     {file = "frozenlist-1.2.0-cp39-cp39-win_amd64.whl", hash = "sha256:735f386ec522e384f511614c01d2ef9cf799f051353876b4c6fb93ef67a6d1ee"},
     {file = "frozenlist-1.2.0.tar.gz", hash = "sha256:68201be60ac56aff972dc18085800b6ee07973c49103a8aba669dee3d71079de"},
+]
+future = [
+    {file = "future-0.18.2.tar.gz", hash = "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"},
 ]
 geoip2 = [
     {file = "geoip2-4.5.0-py2.py3-none-any.whl", hash = "sha256:2aed03b45f8037b9e16f02567bcf3623801d6d20689c5fc5676d7c08ed067334"},
@@ -1543,8 +1568,8 @@ pycparser = [
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},
 ]
 pyjwt = [
-    {file = "PyJWT-2.3.0-py3-none-any.whl", hash = "sha256:e0c4bb8d9f0af0c7f5b1ec4c5036309617d03d56932877f2f7a0beeb5318322f"},
-    {file = "PyJWT-2.3.0.tar.gz", hash = "sha256:b888b4d56f06f6dcd777210c334e69c737be74755d3e5e9ee3fe67dc18a0ee41"},
+    {file = "PyJWT-2.4.0-py3-none-any.whl", hash = "sha256:72d1d253f32dbd4f5c88eaf1fdc62f3a19f676ccbadb9dbc5d07e951b2b26daf"},
+    {file = "PyJWT-2.4.0.tar.gz", hash = "sha256:d42908208c699b3b973cbeb01a969ba6a96c821eefb1c5bfe4c390c01d67abba"},
 ]
 pyparsing = [
     {file = "pyparsing-3.0.6-py3-none-any.whl", hash = "sha256:04ff808a5b90911829c55c4e26f75fa5ca8a2f5f36aa3a51f68e27033341d3e4"},
