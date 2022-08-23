@@ -1,5 +1,9 @@
 from django.db import models
 from core.models import User, _default_uuid
+from django.core.exceptions import ValidationError
+
+
+from cerberus import Validator
 
 
 class ShyDB(models.Model):
@@ -14,6 +18,16 @@ class ShyDB(models.Model):
 
     class Meta:
         pass
+
+    def clean(self):
+        if self.schema is not None and self.value is not None:
+            v = Validator(self.schema)
+            if not v.validate(self.value):
+                raise ValidationError({'value': str(v.errors)})
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f'({self.key}): {self.name}'
