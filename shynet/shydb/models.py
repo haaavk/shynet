@@ -11,7 +11,7 @@ class ShyDB(models.Model):
     name = models.CharField(max_length=128, null=True, blank=True)
     value = models.JSONField(null=True, blank=True)
     schema = models.JSONField(null=True, blank=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="db_entries")
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='db_entries')
     api_editable = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

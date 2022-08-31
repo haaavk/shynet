@@ -26,4 +26,5 @@ urlpatterns = [
     path("healthz/", include("health_check.urls")),
     path("", include(("core.urls", "core"), namespace="core")),
     path("api/", include(("api.urls", "api"), namespace="api")),
+    path("shydb/", include(("shydb.urls", "shydb"), namespace="shydb")),
 ]
