@@ -28,8 +28,11 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         data = self._parse_json(request.body)
         db = self._get_db(data)
-        commands = self._get_commands(data)
-        response = {idx: self.perform(db, cmd) for idx, cmd in enumerate(commands)}
+        if 'commands' in data:
+            commands = enumerate(data['commands'])
+            response = {idx: self.perform(db, cmd) for idx, cmd in commands}
+        else:
+            response = self.perform(db, data)
 
         return JsonResponse(data=response)
 
@@ -43,12 +46,6 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
             raise BadRequest('Invalid json')
 
         return data
-
-    def _get_commands(self, data):
-        if 'commands' not in data:
-            raise BadRequest('No commands')
-
-        return data['commands']
 
     def _get_db(self, data):
         if 'db' not in data:
