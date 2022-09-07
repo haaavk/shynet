@@ -66,10 +66,23 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         return getattr(self, f'_{command_type}')(db, command)
 
     def _get(self, db, command):
-        if 'fields' in command:
-            return {field: db.value.get(field) for field in command['fields']}
+        if 'name' in command:
+            return self._get_field(db, command)
+        elif 'fields' in command:
+            return {self._get_field(db, field) for field in command['fields']}
 
         return {'response': db.value}
+
+    def _get_field(self, db, field):
+        name = field.get('name')
+        if isinstance(db.value[name], list) and 'where' in field:
+            filter_func = self._get_filter_func(field['where'])
+
+            return {
+                field['name']: value for value in filter(filter_func, db.value[name])
+            }
+
+        return {field['name']: db.value.get(field['name'])}
 
     def _set(self, db, command):
         if not db.api_editable:
