@@ -1,5 +1,6 @@
 import json
 
+from django.db import transaction
 from django.http import JsonResponse, Http404
 from django.core.exceptions import BadRequest
 from django.views.generic import View
@@ -17,13 +18,16 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            return super().dispatch(request, *args, **kwargs)
+            with transaction.atomic():
+                response = super().dispatch(request, *args, **kwargs)
         except Http404:
-            return JsonResponse(status=404)
+            response = JsonResponse(status=404)
         except BadRequest as e:
-            return JsonResponse(status=400, data={'error': e.args[0]})
+            response = JsonResponse(status=400, data={'error': e.args[0]})
         except Exception as e:
-            return JsonResponse(status=500, data={'error': e.args[0]})
+            response = JsonResponse(status=500, data={'error': e.args[0]})
+
+        return response
 
     def post(self, request, *args, **kwargs):
         data = self._parse_json(request.body)
