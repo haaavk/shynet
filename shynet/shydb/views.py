@@ -79,7 +79,7 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
             filter_func = self._get_filter_func(field['where'])
 
             return {
-                field['name']: value for value in filter(filter_func, db.value[name])
+                field['name']: [value for value in filter(filter_func, db.value[name])]
             }
 
         return {field['name']: db.value.get(field['name'])}
@@ -123,16 +123,55 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
 
         field = command['field']
         if isinstance(db.value[field], list) and 'where' in command:
-            where_field = command['where'].get('field')
-            where_value = command['where'].get('value')
-            for item in db.value[field]:
-                if isinstance(item, dict) and item.get(where_field) == where_value:
-                    db.value[field].remove(item)
-                elif item == where_value:
-                    db.value[field].remove(item)
+            filter_func = self._get_filter_func(command['where'])
+            for item in filter(filter_func, db.value[field]):
+                db.value[field].remove(item)
         else:
             del db.value[command['field']]
 
         db.save()
 
         return {'response': 'ok'}
+
+    def _get_filter_func(self, where):
+        where_field = where.get('field')
+        where_type = where.get('type')
+        where_value = self._convert_where_value(where.get('value'), where_type)
+        operator = where.get('operator', '=')
+
+        def filter_func(item):
+            if isinstance(item, dict):
+                item = item.get(where_field)
+                if not item:
+                    return False
+
+            try:
+                match operator:
+                    case '=':
+                        return item == where_value
+                    case '>':
+                        return item > where_value
+                    case '>=':
+                        return item >= where_value
+                    case '<':
+                        return item < where_value
+                    case '<=':
+                        return item <= where_value
+            except TypeError:
+                raise BadRequest('Invalid where value type')
+
+            return False
+
+        return filter_func
+
+    def _convert_where_value(self, where_value, where_type):
+        if where_type not in ('int', 'float'):
+            return where_value
+
+        try:
+            if where_type == 'int':
+                return int(where_value)
+            elif where_value == 'float':
+                return float(where_value)
+        except ValueError:
+            raise BadRequest('Where value does not match where type')
