@@ -28,11 +28,11 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         data = self._parse_json(request.body)
         db = self._get_db(data)
-        command = data.get('type')
-        if command not in self.COMMANDS:
-            raise BadRequest('Invalid command')
-
-        response = getattr(self, f'_{command}')(db, data)
+        if 'commands' in data:
+            commands = enumerate(data['commands'])
+            response = {idx: self.perform(db, cmd) for idx, cmd in commands}
+        else:
+            response = self.perform(db, data)
 
         return JsonResponse(data=response)
 
@@ -58,8 +58,15 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
 
         return db
 
+    def perform(self, db, command):
+        command_type = command.get('type')
+        if command_type not in self.COMMANDS:
+            return {'response': 'error', 'details': 'Invalid command'}
+
+        return getattr(self, f'_{command_type}')(db, command)
+
     def _get(self, db, command):
-        if 'field' in command:
+        if 'name' in command:
             return self._get_field(db, command)
         elif 'fields' in command:
             return {self._get_field(db, field) for field in command['fields']}
@@ -67,16 +74,21 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         return {'response': db.value}
 
     def _get_field(self, db, field):
-        name = field.get('field')
+        name = field.get('name')
         if isinstance(db.value[name], list) and 'where' in field:
             filter_func = self._get_filter_func(field['where'])
 
-            return {name: [value for value in filter(filter_func, db.value[name])]}
+            return {
+                field['name']: [value for value in filter(filter_func, db.value[name])]
+            }
 
-        return {name: db.value.get(name)}
+        return {field['name']: db.value.get(field['name'])}
 
     def _set(self, db, command):
-        self._validate_mutable_command(db, command)
+        if not db.api_editable:
+            return {'response': 'error', 'detils': 'DB is not api editable'}
+        if 'field' not in command:
+            return {'response': 'error', 'detils': 'No field specified'}
 
         db.value[command['field']] = command.get('value')
         db.save()
@@ -84,7 +96,10 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         return {'response': 'ok'}
 
     def _add(self, db, command):
-        self._validate_mutable_command(db, command)
+        if not db.api_editable:
+            return {'response': 'error', 'detils': 'DB is not api editable'}
+        if 'field' not in command:
+            return {'response': 'error', 'detils': 'No field specified'}
 
         field = command['field']
         value = command.get('value')
@@ -98,7 +113,10 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         return {'response': 'ok'}
 
     def _remove(self, db, command):
-        self._validate_mutable_command(db, command)
+        if not db.api_editable:
+            return {'response': 'error', 'detils': 'DB is not api editable'}
+        if 'field' not in command:
+            return {'response': 'error', 'detils': 'No field specified'}
 
         if command['field'] not in db.value:
             return {'response': 'ok'}
@@ -157,9 +175,3 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
                 return float(where_value)
         except ValueError:
             raise BadRequest('Where value does not match where type')
-
-    def _validate_mutable_command(self, db, command):
-        if not db.api_editable:
-            raise BadRequest('DB is not api editable')
-        if 'field' not in command:
-            raise BadRequest('No field specified')
