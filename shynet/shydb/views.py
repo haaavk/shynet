@@ -2,7 +2,6 @@ import json
 
 from django.db import transaction
 from django.http import JsonResponse, Http404
-from django.core.exceptions import BadRequest
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -10,6 +9,13 @@ from django.utils.decorators import method_decorator
 
 from api.mixins import ApiTokenRequiredMixin
 from .models import ShyDB
+
+
+class ApiException(Exception):
+    data = {}
+
+    def __init__(self, error):
+        self.data['error'] = error
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -22,10 +28,8 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
                 response = super().dispatch(request, *args, **kwargs)
         except Http404:
             response = JsonResponse(status=404)
-        except BadRequest as e:
-            response = JsonResponse(status=400, data={'error': e.args[0]})
-        except Exception as e:
-            response = JsonResponse(status=500, data={'error': e.args[0]})
+        except ApiException as e:
+            response = JsonResponse(status=400, data=e.data)
 
         return response
 
@@ -33,8 +37,13 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         data = self._parse_json(request.body)
         db = self._get_db(data)
         if 'commands' in data:
-            commands = enumerate(data['commands'])
-            response = {idx: self.perform(db, cmd) for idx, cmd in commands}
+            response = {}
+            for idx, cmd in enumerate(data['commands']):
+                try:
+                    response[idx] = self.perform(db, cmd)
+                except ApiException as e:
+                    e.data = {idx: e.data}
+                    raise e
         else:
             response = self.perform(db, data)
 
@@ -47,13 +56,13 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         try:
             data = json.loads(body)
         except Exception:
-            raise BadRequest('Invalid json')
+            raise ApiException('Invalid json')
 
         return data
 
     def _get_db(self, data):
         if 'db' not in data:
-            raise BadRequest('No db key')
+            raise ApiException('No db key')
 
         db = ShyDB.objects.filter(key=data['db']).first()
 
@@ -65,7 +74,7 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
     def perform(self, db, command):
         command_type = command.get('type')
         if command_type not in self.COMMANDS:
-            return {'response': 'error', 'details': 'Invalid command'}
+            raise ApiException({'error': 'Invalid command'})
 
         return getattr(self, f'_{command_type}')(db, command)
 
@@ -151,7 +160,7 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
                     case '<=':
                         return item <= where_value
             except TypeError:
-                raise BadRequest('Invalid where value type')
+                raise ApiException('Invalid where value type')
 
             return False
 
@@ -167,10 +176,10 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
             elif where_value == 'float':
                 return float(where_value)
         except ValueError:
-            raise BadRequest('Where value does not match where type')
+            raise ApiException('Where value does not match where type')
 
     def _validate_mutable_command(self, db, command):
         if not db.api_editable:
-            raise BadRequest('DB is not api editable')
+            raise ApiException('DB is not api editable')
         if 'field' not in command:
-            raise BadRequest('No field specified')
+            raise ApiException('No field specified')
