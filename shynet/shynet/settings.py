@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+
 from dotenv import load_dotenv
 
 # import module sys to get the type of exception
@@ -22,7 +23,7 @@ from django.contrib.messages import constants as messages
 load_dotenv()
 
 # Increment on new releases
-VERSION = "0.12.0/2"
+VERSION = "0.13.0/1"
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -38,7 +39,9 @@ SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "onlyusethisindev")
 DEBUG = os.getenv("DEBUG", "False") == "True"
 
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
-
+CSRF_TRUSTED_ORIGINS = filter(
+    lambda k: len(k) > 0, os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+)
 
 # Application definition
 
@@ -206,7 +209,7 @@ LOGGING = {
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
-LANGUAGE_CODE = "en-us"
+LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "en-us")
 
 TIME_ZONE = os.getenv("TIME_ZONE", "America/New_York")
 
@@ -378,3 +381,18 @@ USE_RELATIVE_MAX_IN_BAR_VISUALIZATION = (
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_METHODS = ["GET", "OPTIONS"]
+
+# IPWare Precedence Options
+IPWARE_META_PRECEDENCE_ORDER = (
+    'HTTP_CF_CONNECTING_IP',
+    'HTTP_X_FORWARDED_FOR',
+    'X_FORWARDED_FOR',  # client, proxy1, proxy2
+    'HTTP_CLIENT_IP',
+    'HTTP_X_REAL_IP',
+    'HTTP_X_FORWARDED',
+    'HTTP_X_CLUSTER_CLIENT_IP',
+    'HTTP_FORWARDED_FOR',
+    'HTTP_FORWARDED',
+    'HTTP_VIA',
+    'REMOTE_ADDR',
+)
