@@ -13,6 +13,5 @@
 
 This is list of features available only in Shyweb:
 
-* API to get analytic data
-* Progressive web app
 * Extra url accepting random number to support tracking pixel in SPAs.
+* Extra field in Service model to hardcode favicon url
