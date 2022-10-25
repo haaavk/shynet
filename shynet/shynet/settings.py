@@ -63,11 +63,13 @@ INSTALLED_APPS = [
     "dashboard.apps.DashboardConfig",
     "analytics",
     "api",
+    "shydb",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
     "debug_toolbar",
     "corsheaders",
+    "django_json_widget",
 ]
 
 MIDDLEWARE = [

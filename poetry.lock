@@ -111,37 +111,45 @@ pytz = ">=2021.3"
 vine = ">=5.0.0,<6.0"
 
 [package.extras]
-arangodb = ["pyArango (>=1.3.2)"]
-auth = ["cryptography"]
-azureblockblob = ["azure-storage-blob (==12.9.0)"]
-brotli = ["brotli (>=1.0.0)", "brotlipy (>=0.7.0)"]
-cassandra = ["cassandra-driver (<3.21.0)"]
-consul = ["python-consul2"]
-cosmosdbsql = ["pydocumentdb (==2.3.2)"]
-couchbase = ["couchbase (>=3.0.0)"]
-couchdb = ["pycouchdb"]
-django = ["Django (>=1.11)"]
-dynamodb = ["boto3 (>=1.9.178)"]
-elasticsearch = ["elasticsearch"]
-eventlet = ["eventlet (>=0.32.0)"]
-gevent = ["gevent (>=1.5.0)"]
-librabbitmq = ["librabbitmq (>=1.5.0)"]
-memcache = ["pylibmc"]
-mongodb = ["pymongo[srv] (>=3.11.1)"]
-msgpack = ["msgpack"]
-pymemcache = ["python-memcached"]
-pyro = ["pyro4"]
-pytest = ["pytest-celery"]
-redis = ["redis (>=3.4.1,!=4.0.0,!=4.0.1)"]
-s3 = ["boto3 (>=1.9.125)"]
-slmq = ["softlayer-messaging (>=1.0.3)"]
-solar = ["ephem"]
-sqlalchemy = ["sqlalchemy"]
-sqs = ["kombu"]
-tblib = ["tblib (>=1.3.0)", "tblib (>=1.5.0)"]
-yaml = ["PyYAML (>=3.10)"]
-zookeeper = ["kazoo (>=1.3.1)"]
 zstd = ["zstandard"]
+zookeeper = ["kazoo (>=1.3.1)"]
+yaml = ["PyYAML (>=3.10)"]
+tblib = ["tblib (>=1.5.0)", "tblib (>=1.3.0)"]
+sqs = ["kombu"]
+sqlalchemy = ["sqlalchemy"]
+solar = ["ephem"]
+slmq = ["softlayer-messaging (>=1.0.3)"]
+s3 = ["boto3 (>=1.9.125)"]
+redis = ["redis (>=3.4.1,<4.0.0)"]
+pytest = ["pytest-celery"]
+pyro = ["pyro4"]
+pymemcache = ["python-memcached"]
+msgpack = ["msgpack"]
+mongodb = ["pymongo[srv] (>=3.3.0,<3.12.1)"]
+memcache = ["pylibmc"]
+librabbitmq = ["librabbitmq (>=1.5.0)"]
+gevent = ["gevent (>=1.5.0)"]
+eventlet = ["eventlet (>=0.32.0)"]
+elasticsearch = ["elasticsearch"]
+dynamodb = ["boto3 (>=1.9.178)"]
+django = ["Django (>=1.11)"]
+couchdb = ["pycouchdb"]
+couchbase = ["couchbase (>=3.0.0)"]
+cosmosdbsql = ["pydocumentdb (==2.3.2)"]
+consul = ["python-consul2"]
+cassandra = ["cassandra-driver (<3.21.0)"]
+brotli = ["brotlipy (>=0.7.0)", "brotli (>=1.0.0)"]
+azureblockblob = ["azure-storage-blob (==12.9.0)"]
+auth = ["cryptography"]
+arangodb = ["pyArango (>=1.3.2)"]
+
+[[package]]
+name = "cerberus"
+version = "1.3.4"
+description = "Lightweight, extensible schema and data validation tool for Python dictionaries."
+category = "main"
+optional = false
+python-versions = ">=2.7"
 
 [[package]]
 name = "certifi"
@@ -283,8 +291,8 @@ sqlparse = ">=0.2.2"
 tzdata = {version = "*", markers = "sys_platform == \"win32\""}
 
 [package.extras]
-argon2 = ["argon2-cffi (>=19.1.0)"]
 bcrypt = ["bcrypt"]
+argon2 = ["argon2-cffi (>=19.1.0)"]
 
 [[package]]
 name = "django-allauth"
@@ -358,6 +366,17 @@ description = "A Django application to retrieve user's IP address"
 category = "main"
 optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
+
+[[package]]
+name = "django-json-widget"
+version = "1.1.1"
+description = "Django json widget is an alternative widget that makes it easy to edit the jsonfield field of django."
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+future = "*"
 
 [[package]]
 name = "django-npm"
@@ -443,6 +462,14 @@ description = "A list-like structure which implements collections.abc.MutableSeq
 category = "main"
 optional = false
 python-versions = ">=3.7"
+
+[[package]]
+name = "future"
+version = "0.18.2"
+description = "Clean single-source support for Python 3 and 2"
+category = "main"
+optional = false
+python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
 name = "geoip2"
@@ -656,10 +683,10 @@ python-versions = ">=3.6"
 cryptography = {version = ">=3.3.1", optional = true, markers = "extra == \"crypto\""}
 
 [package.extras]
+tests = ["coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)"]
+docs = ["zope.interface", "sphinx-rtd-theme", "sphinx"]
+dev = ["pre-commit", "mypy", "coverage[toml] (==5.0.4)", "pytest (>=6.0.0,<7.0.0)", "cryptography (>=3.3.1)", "zope.interface", "sphinx-rtd-theme", "sphinx"]
 crypto = ["cryptography (>=3.3.1)"]
-dev = ["sphinx", "sphinx-rtd-theme", "zope.interface", "cryptography (>=3.3.1)", "pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)", "mypy", "pre-commit"]
-docs = ["sphinx", "sphinx-rtd-theme", "zope.interface"]
-tests = ["pytest (>=6.0.0,<7.0.0)", "coverage[toml] (==5.0.4)"]
 
 [[package]]
 name = "pyparsing"
