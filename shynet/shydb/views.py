@@ -15,12 +15,12 @@ class ApiException(Exception):
     data = {}
 
     def __init__(self, error):
-        self.data['error'] = error
+        self.data["error"] = error
 
 
-@method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name="dispatch")
 class ShyDBApiView(ApiTokenRequiredMixin, View):
-    COMMANDS = ('set', 'get', 'add', 'remove')
+    COMMANDS = ("set", "get", "add", "remove")
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -36,9 +36,9 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
     def post(self, request, *args, **kwargs):
         data = self._parse_json(request.body)
         db = self._get_db(data)
-        if 'commands' in data:
+        if "commands" in data:
             response = {}
-            for idx, cmd in enumerate(data['commands']):
+            for idx, cmd in enumerate(data["commands"]):
                 try:
                     response[idx] = self.perform(db, cmd)
                 except ApiException as e:
@@ -56,15 +56,15 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         try:
             data = json.loads(body)
         except Exception:
-            raise ApiException('Invalid json')
+            raise ApiException("Invalid json")
 
         return data
 
     def _get_db(self, data):
-        if 'db' not in data:
-            raise ApiException('No db key')
+        if "db" not in data:
+            raise ApiException("No db key")
 
-        db = ShyDB.objects.filter(key=data['db']).first()
+        db = ShyDB.objects.filter(key=data["db"]).first()
 
         if db is None:
             raise Http404
@@ -72,24 +72,24 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         return db
 
     def perform(self, db, command):
-        command_type = command.get('type')
+        command_type = command.get("type")
         if command_type not in self.COMMANDS:
-            raise ApiException({'error': 'Invalid command'})
+            raise ApiException({"error": "Invalid command"})
 
-        return getattr(self, f'_{command_type}')(db, command)
+        return getattr(self, f"_{command_type}")(db, command)
 
     def _get(self, db, command):
-        if 'field' in command:
+        if "field" in command:
             return self._get_field(db, command)
-        elif 'fields' in command:
-            return {self._get_field(db, field) for field in command['fields']}
+        elif "fields" in command:
+            return {self._get_field(db, field) for field in command["fields"]}
 
-        return {'response': db.value}
+        return {"response": db.value}
 
     def _get_field(self, db, field):
-        name = field.get('field')
-        if isinstance(db.value[name], list) and 'where' in field:
-            filter_func = self._get_filter_func(field['where'])
+        name = field.get("field")
+        if isinstance(db.value[name], list) and "where" in field:
+            filter_func = self._get_filter_func(field["where"])
 
             return {name: [value for value in filter(filter_func, db.value[name])]}
 
@@ -98,48 +98,53 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
     def _set(self, db, command):
         self._validate_mutable_command(db, command)
 
-        db.value[command['field']] = command.get('value')
+        db.value[command["field"]] = command.get("value")
         db.save()
 
-        return {'response': 'ok'}
+        return {"response": "ok"}
 
     def _add(self, db, command):
         self._validate_mutable_command(db, command)
 
-        field = command['field']
-        value = command.get('value')
-        if isinstance(db.value[field], list):
-            db.value[field].append(value)
-        else:
-            db.value[field] = value
+        field = command["field"]
+        value = command.get("value")
+        max_length = command.get("max_length")
+        if not isinstance(db.value[field], list):
+            raise ApiException({"error": "Field is not a list"})
+
+        db.value[field].append(value)
+
+        if isinstance(max_length, int):
+            while len(db.value[field]) > max_length:
+                db.value[field].pop(0)
 
         db.save()
 
-        return {'response': 'ok'}
+        return {"response": "ok"}
 
     def _remove(self, db, command):
         self._validate_mutable_command(db, command)
 
-        if command['field'] not in db.value:
-            return {'response': 'ok'}
+        if command["field"] not in db.value:
+            return {"response": "ok"}
 
-        field = command['field']
-        if isinstance(db.value[field], list) and 'where' in command:
-            filter_func = self._get_filter_func(command['where'])
+        field = command["field"]
+        if isinstance(db.value[field], list) and "where" in command:
+            filter_func = self._get_filter_func(command["where"])
             for item in filter(filter_func, db.value[field]):
                 db.value[field].remove(item)
         else:
-            del db.value[command['field']]
+            del db.value[command["field"]]
 
         db.save()
 
-        return {'response': 'ok'}
+        return {"response": "ok"}
 
     def _get_filter_func(self, where):
-        where_field = where.get('field')
-        where_type = where.get('type')
-        where_value = self._convert_where_value(where.get('value'), where_type)
-        operator = where.get('operator', '=')
+        where_field = where.get("field")
+        where_type = where.get("type")
+        where_value = self._convert_where_value(where.get("value"), where_type)
+        operator = where.get("operator", "=")
 
         def filter_func(item):
             if isinstance(item, dict):
@@ -149,37 +154,37 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
 
             try:
                 match operator:
-                    case '=':
+                    case "=":
                         return item == where_value
-                    case '>':
+                    case ">":
                         return item > where_value
-                    case '>=':
+                    case ">=":
                         return item >= where_value
-                    case '<':
+                    case "<":
                         return item < where_value
-                    case '<=':
+                    case "<=":
                         return item <= where_value
             except TypeError:
-                raise ApiException('Invalid where value type')
+                raise ApiException("Invalid where value type")
 
             return False
 
         return filter_func
 
     def _convert_where_value(self, where_value, where_type):
-        if where_type not in ('int', 'float'):
+        if where_type not in ("int", "float"):
             return where_value
 
         try:
-            if where_type == 'int':
+            if where_type == "int":
                 return int(where_value)
-            elif where_value == 'float':
+            elif where_value == "float":
                 return float(where_value)
         except ValueError:
-            raise ApiException('Where value does not match where type')
+            raise ApiException("Where value does not match where type")
 
     def _validate_mutable_command(self, db, command):
         if not db.api_editable:
-            raise ApiException('DB is not api editable')
-        if 'field' not in command:
-            raise ApiException('No field specified')
+            raise ApiException("DB is not api editable")
+        if "field" not in command:
+            raise ApiException("No field specified")
