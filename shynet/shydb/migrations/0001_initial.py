@@ -18,14 +18,28 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='ShyDB',
             fields=[
-                ('key', models.UUIDField(default=core.models._default_uuid, primary_key=True, serialize=False)),
+                (
+                    'key',
+                    models.UUIDField(
+                        default=core.models._default_uuid,
+                        primary_key=True,
+                        serialize=False,
+                    ),
+                ),
                 ('name', models.CharField(blank=True, max_length=128, null=True)),
-                ('value', models.JSONField(blank=True, null=True)),
+                ('value', models.JSONField(blank=True, default=dict)),
                 ('schema', models.JSONField(blank=True, null=True)),
                 ('api_editable', models.BooleanField(default=False)),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='db_entries', to=settings.AUTH_USER_MODEL)),
+                (
+                    'owner',
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name='db_entries',
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
