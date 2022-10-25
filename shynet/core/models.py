@@ -79,6 +79,7 @@ class Service(models.Model):
     )
     created = models.DateTimeField(auto_now_add=True, verbose_name=_("created"))
     link = models.URLField(blank=True, verbose_name=_("link"))
+    favicon = models.URLField(blank=True, verbose_name=_("Favicon"))
     origins = models.TextField(default="*", verbose_name=_("origins"))
     status = models.CharField(
         max_length=2,
