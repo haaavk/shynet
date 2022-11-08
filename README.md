@@ -15,3 +15,4 @@ This is list of features available only in Shyweb:
 
 * Extra url accepting random number to support tracking pixel in SPAs.
 * Extra field in Service model to hardcode favicon url
+* ShyDB (JSON storage) for custom analytics, remote config, DB for internal projects.
