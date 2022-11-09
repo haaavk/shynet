@@ -5,6 +5,7 @@ from django.http import JsonResponse, Http404
 from django.views.generic import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from django.core.exceptions import ValidationError
 
 
 from api.mixins import ApiTokenRequiredMixin
@@ -56,7 +57,7 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         try:
             data = json.loads(body)
         except Exception:
-            raise ApiException("Invalid json")
+            raise ApiException()
 
         return data
 
@@ -99,7 +100,10 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
         self._validate_mutable_command(db, command)
 
         db.value[command["field"]] = command.get("value")
-        db.save()
+        try:
+            db.save()
+        except ValidationError as e:
+            raise ApiException(e.messages)
 
         return {"response": "ok"}
 
@@ -118,7 +122,10 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
             while len(db.value[field]) > max_length:
                 db.value[field].pop(0)
 
-        db.save()
+        try:
+            db.save()
+        except ValidationError as e:
+            raise ApiException(e.messages)
 
         return {"response": "ok"}
 

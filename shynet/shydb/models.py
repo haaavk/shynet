@@ -3,7 +3,7 @@ from core.models import User, _default_uuid
 from django.core.exceptions import ValidationError
 
 
-from cerberus import Validator
+from jsonschema import Draft202012Validator as Validator
 
 
 class ShyDB(models.Model):
@@ -22,8 +22,16 @@ class ShyDB(models.Model):
     def clean(self):
         if self.schema is not None and self.value is not None:
             v = Validator(self.schema)
-            if not v.validate(self.value):
-                raise ValidationError({"value": str(v.errors)})
+            errors = sorted(v.iter_errors(self.value), key=lambda e: e.path)
+            if errors:
+                messages = [
+                    "{}: {}".format(self._as_index(e.path), e.message) for e in errors
+                ]
+                raise ValidationError({"value": messages})
+
+    def _as_index(self, path):
+        path = path or []
+        return f"Value[{']['.join(repr(index) for index in path)}]"
 
     def save(self, *args, **kwargs):
         self.full_clean()
