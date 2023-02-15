@@ -30,15 +30,12 @@ var Shynet = {
   window.addEventListener("load", Shynet.newPageLoad);
 {% endif %}
 
-window.addEventListener("load", Shynet.newPageLoad);
-{% endif %}
-
 
 {% if script_inject %}
-  // The following is script is not part of Shynet, and was instead
-  // provided by this site's administrator.
-  // 
-  // -- START --
-  {{script_inject|safe}}
-  // -- END --
+// The following is script is not part of Shynet, and was instead
+// provided by this site's administrator.
+// 
+// -- START --
+{{script_inject|safe}}
+// -- END --
 {% endif %}
