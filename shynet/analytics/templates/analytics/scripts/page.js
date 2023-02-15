@@ -6,50 +6,19 @@
 // This script only sends the current URL, the referrer URL, and the page load time. That's it!
 
 {% if dnt %}
-  var Shynet = {
-    dnt: true
-  };
+var Shynet = {
+  dnt: true
+};
 {% else %}
-  var Shynet = {
-    dnt: false,
-    idempotency: null,
-    heartbeatTaskId: null,
-    skipHeartbeat: false,
-    sendHeartbeat: function () {
-      try {
-        if (document.hidden || Shynet.skipHeartbeat) {
-          return;
-        }
-
-        Shynet.skipHeartbeat = true;
-        var xhr = new XMLHttpRequest();
-        xhr.open(
-          "POST",
-          "{{protocol}}://{{request.get_host}}{{endpoint}}",
-          true
-        );
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.onload = function () { 
-          Shynet.skipHeartbeat = false;
-        };
-        xhr.onerror = function () { 
-          Shynet.skipHeartbeat = false;
-        };
-        xhr.send(
-          JSON.stringify({
-            idempotency: Shynet.idempotency,
-            referrer: document.referrer,
-            location: window.location.href,
-            loadTime:
-              window.performance.timing.domContentLoadedEventEnd -
-              window.performance.timing.navigationStart,
-          })
-        );
-      } catch (e) {}
-    },
-    newPageLoad: function () {
-      if (Shynet.heartbeatTaskId != null) {
-        clearInterval(Shynet.heartbeatTaskId);
+var Shynet = {
+  dnt: false,
+  idempotency: null,
+  heartbeatTaskId: null,
+  skipHeartbeat: false,
+  sendHeartbeat: function () {
+    try {
+      if (document.hidden || Shynet.skipHeartbeat) {
+        return;
       }
       Shynet.idempotency = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
       Shynet.skipHeartbeat = false;
@@ -59,6 +28,9 @@
   };
 
   window.addEventListener("load", Shynet.newPageLoad);
+{% endif %}
+
+window.addEventListener("load", Shynet.newPageLoad);
 {% endif %}
 
 
