@@ -1,0 +1,3 @@
+- add month and year agregation to chart
+- add index filter to where in add and remove commands
+- build package with pyOxidizer or pex
