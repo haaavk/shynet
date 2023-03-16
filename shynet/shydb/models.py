@@ -21,8 +21,14 @@ class ShyDB(models.Model):
 
     def clean(self):
         if self.schema is not None and self.value is not None:
-            v = Validator(self.schema)
-            errors = sorted(v.iter_errors(self.value), key=lambda e: e.path)
+            try:
+                v = Validator(self.schema)
+                errors = sorted(v.iter_errors(self.value), key=lambda e: e.path)
+            except Exception:
+                raise ValidationError(
+                    {"value": "Something went wrong. Check schema for errors."}
+                )
+
             if errors:
                 messages = [
                     "{}: {}".format(self._as_index(e.path), e.message) for e in errors
