@@ -81,20 +81,26 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
 
     def _get(self, db, command):
         if "field" in command:
-            return self._get_field(db, command)
+            name, value = self._get_field(db, command)
+            return {name: value}
         elif "fields" in command:
-            return {self._get_field(db, field) for field in command["fields"]}
+            fields = [self._get_field(db, field) for field in command["fields"]]
+            return {name: value for (name, value) in fields}
 
         return {"response": db.value}
 
     def _get_field(self, db, field):
-        name = field.get("field")
-        if isinstance(db.value[name], list) and "where" in field:
-            filter_func = self._get_filter_func(field["where"])
+        name = None
+        if isinstance(field, str):
+            name = field
+        if isinstance(field, dict):
+            name = field.get("field")
+            if isinstance(db.value[name], list) and "where" in field:
+                filter_func = self._get_filter_func(field["where"])
 
-            return {name: [value for value in filter(filter_func, db.value[name])]}
+                return {name: [value for value in filter(filter_func, db.value[name])]}
 
-        return {name: db.value.get(name)}
+        return name, db.value.get(name)
 
     def _set(self, db, command):
         self._validate_mutable_command(db, command)
