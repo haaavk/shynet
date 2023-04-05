@@ -105,7 +105,15 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
     def _set(self, db, command):
         self._validate_mutable_command(db, command)
 
-        db.value[command["field"]] = command.get("value")
+        field = command["field"]
+        if isinstance(db.value[field], list) and "where" in command:
+            filter_func = self._get_filter_func(command["where"])
+            index, _ = self._get_first_maching(db.value[field], filter_func)
+            if index:
+                db.value[field][index] = command.get("value")
+        else:
+            db.value[field] = command.get("value")
+
         try:
             db.save()
         except ValidationError as e:
@@ -161,28 +169,35 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
 
         def filter_func(item):
             if isinstance(item, dict):
-                item = item.get(where_field)
-                if not item:
+                field = item.get(where_field)
+                if not field:
                     return False
 
             try:
                 match operator:
                     case "=":
-                        return item == where_value
+                        return field == where_value
                     case ">":
-                        return item > where_value
+                        return field > where_value
                     case ">=":
-                        return item >= where_value
+                        return field >= where_value
                     case "<":
-                        return item < where_value
+                        return field < where_value
                     case "<=":
-                        return item <= where_value
+                        return field <= where_value
             except TypeError:
                 raise ApiException("Invalid where value type")
 
             return False
 
         return filter_func
+
+    def _get_first_maching(self, collection, filter_func):
+        for index, item in enumerate(collection):
+            if filter_func(item):
+                return index, item
+
+        return None, None
 
     def _convert_where_value(self, where_value, where_type):
         if where_type not in ("int", "float"):
