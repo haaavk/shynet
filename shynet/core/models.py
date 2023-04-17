@@ -19,6 +19,7 @@ from django.utils.translation import gettext_lazy as _
 ACTIVE_USER_TIMEDELTA = timezone.timedelta(
     milliseconds=settings.SCRIPT_HEARTBEAT_FREQUENCY * 2
 )
+RESULTS_LIMIT = 300
 
 
 def _default_uuid():
@@ -177,7 +178,7 @@ class Service(models.Model):
         locations = (
             hits.values("location")
             .annotate(count=models.Count("location"))
-            .order_by("-count")
+            .order_by("-count")[:RESULTS_LIMIT]
         )
 
         referrer_ignore = self.get_ignored_referrer_regex()
@@ -187,7 +188,7 @@ class Service(models.Model):
                 hits.filter(initial=True)
                 .values("referrer")
                 .annotate(count=models.Count("referrer"))
-                .order_by("-count")
+                .order_by("-count")[:RESULTS_LIMIT]
             )
             if not referrer_ignore.match(referrer["referrer"])
         ]
@@ -195,29 +196,31 @@ class Service(models.Model):
         countries = (
             sessions.values("country")
             .annotate(count=models.Count("country"))
-            .order_by("-count")
+            .order_by("-count")[:RESULTS_LIMIT]
         )
 
         operating_systems = (
-            sessions.values("os").annotate(count=models.Count("os")).order_by("-count")
+            sessions.values("os")
+            .annotate(count=models.Count("os"))
+            .order_by("-count")[:RESULTS_LIMIT]
         )
 
         browsers = (
             sessions.values("browser")
             .annotate(count=models.Count("browser"))
-            .order_by("-count")
+            .order_by("-count")[:RESULTS_LIMIT]
         )
 
         device_types = (
             sessions.values("device_type")
             .annotate(count=models.Count("device_type"))
-            .order_by("-count")
+            .order_by("-count")[:RESULTS_LIMIT]
         )
 
         devices = (
             sessions.values("device")
             .annotate(count=models.Count("device"))
-            .order_by("-count")
+            .order_by("-count")[:RESULTS_LIMIT]
         )
 
         avg_load_time = hits.aggregate(load_time__avg=models.Avg("load_time"))[
