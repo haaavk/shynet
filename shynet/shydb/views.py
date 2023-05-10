@@ -95,10 +95,10 @@ class ShyDBApiView(ApiTokenRequiredMixin, View):
             name = field
         if isinstance(field, dict):
             name = field.get("field")
-            if isinstance(db.value[name], list) and "where" in field:
+            if isinstance(db.value.get(name), list) and "where" in field:
                 filter_func = self._get_filter_func(field["where"])
 
-                return {name: [value for value in filter(filter_func, db.value[name])]}
+                return name, [value for value in filter(filter_func, db.value[name])]
 
         return name, db.value.get(name)
 
